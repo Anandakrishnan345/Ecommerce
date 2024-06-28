@@ -62,7 +62,7 @@
 //   const handleImageChange = (e) => {
 //     const file = e.target.files[0];
 //     setFormData({ ...formData, image: file });
-    
+
 //   };
 
 //   const handleUpdateProduct = async (e) => {
@@ -85,7 +85,7 @@
 //       if (formData.image) {
 //         formDataToSend.append('image', formData.image);
 //       }
-      
+
 
 //       const response = await axios.put(`${BASE_URL}/updateproduct/asSeller/${productId}`, formDataToSend, { headers });
 //       console.log('formDataToSend',formDataToSend)
@@ -177,12 +177,16 @@
 // };
 
 // export default UpdateProduct;
-  
+
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import BASE_URL from '../../Api-handler/Baseurl';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 const UpdateProduct = () => {
   const { productId } = useParams();
@@ -191,10 +195,12 @@ const UpdateProduct = () => {
     price: '',
     category: '',
     contactEmail: '',
-    image: null // Will hold the updated image file
+    image: null, // Will hold the updated image file
+    stock: ''
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -217,7 +223,8 @@ const UpdateProduct = () => {
           price: productData.price.toString(), // Ensure price is a string for input
           category: productData.category,
           contactEmail: productData.contactEmail,
-          image: productData.image // Set the existing image path
+          image: productData.image, // Set the existing image path
+          stock: productData.stock.toString()
         });
 
         setLoading(false);
@@ -258,16 +265,26 @@ const UpdateProduct = () => {
       formDataToSend.append('price', formData.price);
       formDataToSend.append('category', formData.category);
       formDataToSend.append('contactEmail', formData.contactEmail);
+      formDataToSend.append('stock', formData.stock);
       if (formData.image) {
         formDataToSend.append('image', formData.image);
       }
 
       const response = await axios.put(`${BASE_URL}/updateproduct/asSeller/${productId}`, formDataToSend, { headers });
       console.log('Product updated successfully:', response.data);
+      const id = response.data.data.updatedProduct.addedBy;
+      toast.success('Product Updated successfully!', {
+        position: 'top-center',
+        onClose: () => {
+          navigate(`/seller/${id}`);
+
+        }
+      });
       // Optionally handle success message or redirect
 
     } catch (error) {
       console.error('Error updating product:', error);
+      alert('Failed to update product. Please try again.');
       // Handle error
     }
   };
@@ -328,8 +345,21 @@ const UpdateProduct = () => {
             className="w-full bg-gray-100 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-         {/* Display existing image if available */}
-         {formData.image && (
+        <div>
+          <label htmlFor="stock" className="block text-sm font-medium text-gray-600">Stock:</label>
+          <input
+            type="number"
+            id="stock"
+            name="stock"
+            value={formData.stock}
+            onChange={handleInputChange}
+            className="w-full bg-gray-100 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        {/* Display existing image if available */}
+        {formData.image && (
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-600">Existing Image:</label>
             <img src={`${BASE_URL}/${formData.image}`} alt="Existing Product" className="w-full h-auto rounded-md border border-gray-300" />
@@ -345,7 +375,7 @@ const UpdateProduct = () => {
             className="w-full bg-gray-100 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-       
+
         <button
           type="submit"
           className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

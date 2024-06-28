@@ -11,6 +11,11 @@ const orderSchema = new mongoose.Schema({
     ref: 'Product',
     required: true
   },
+  sellerId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true
+  },
   quantity: {
     type: Number,
     required: true
@@ -27,6 +32,10 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: 'Order Placed' // Set default delivery status
   },
+  DeliveredAt: {
+    type: Date,
+    default: Date.now
+  }
   
 });
 

@@ -6,6 +6,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import BASE_URL from '../../Api-handler/Baseurl';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import Newnavbar from '../Newnavbar';
 
 const Viewproduct = () => {
   const { addedByUserId } = useParams(); // Get `addedByUserId` from URL params
@@ -115,6 +117,8 @@ const Viewproduct = () => {
 
 
   return (
+    <>
+    <Newnavbar />
     <div className="p-8 space-y-8">
       {Object.entries(productsByCategory).map(([category, products]) => (
         <div key={category}>
@@ -122,13 +126,16 @@ const Viewproduct = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product) => (
               <div key={product._id} className="bg-white shadow-md rounded overflow-hidden">
+                <Link to={`/viewproductdetailsbuyer/${product._id}`} >
                 <div className="h-48  flex items-center justify-center">
                   <img
                     src={`${BASE_URL}/${product.image}`}
                     alt={product.productName}
                     className="h-full w-auto max-w-full"
                   />
+                  
                 </div>
+                </Link>
                 <div className="p-4">
                   <h3 className="text-lg font-semibold mb-2">{product.productName}</h3>
                   <p className="text-sm text-gray-600 mb-4"><strong>Price:</strong> ${product.price}</p>
@@ -153,6 +160,7 @@ const Viewproduct = () => {
         </div>
       ))}
     </div>
+    </>
   );
   
 };

@@ -125,7 +125,7 @@ const nodemailer = require('nodemailer');
 // }
 exports.signup = async function (req, res) {
     try {
-        const { name, email, password, phonenumber, Address, state, role } = req.body;
+        const { name, email, password, phonenumber, Address,country, state, role } = req.body;
 
         // Check if the password is valid
         if (!password || password.length < 6 || password.length > 20 || /\s/.test(password)) {
@@ -164,6 +164,7 @@ exports.signup = async function (req, res) {
             password: hashed_password,
             phonenumber,
             Address,
+            country,
             state,
             role,
             user_type: user_types_id
@@ -195,15 +196,129 @@ exports.signup = async function (req, res) {
 };
 
 
+// exports.getuser = async function (req, res) {
+//     try {
+//         const allUsers = await users.find();
+//         if (allUsers && allUsers.length > 0) {
+//             // Sends response if users is found
+//             const response = {
+//                 statusCode: 200,
+//                 message: "Success",
+//                 data: allUsers
+//             };
+//             res.status(200).send(response);
+//         } else {
+//             // Error response if users not found
+//             const response = {
+//                 statusCode: 404,
+//                 message: "No users found"
+//             };
+//             res.status(404).send(response);
+//         }
+//     } catch (error) {
+//         // Server error response if any error occurs
+//         console.error("Error fetching users:", error);
+//         const response = {
+//             statusCode: 500,
+//             message: "Internal server error"
+//         };
+//         res.status(500).send(response);
+//     }
+// }
+
+
+// exports.getuser = async function (req, res) {
+//     try {
+//         // Extract query parameters
+//         const { page = 1, limit = 10, role } = req.query;
+
+//         // Initialize filter object
+//         let filter = {};
+//         if (role) {
+//             filter.role = role; // Assuming your user model has a 'role' field
+//         }
+
+//         // Find users with pagination and filtering
+//         const allUsers = await users.find(filter)
+//                                     .skip((page - 1) * limit)
+//                                     .limit(Number(limit));
+
+//         // Get total count for pagination info
+//         const totalCount = await users.countDocuments(filter);
+
+//         if (allUsers && allUsers.length > 0) {
+//             // Sends response if users are found
+//             const response = {
+//                 statusCode: 200,
+//                 message: "Success",
+//                 data: allUsers,
+//                 pagination: {
+//                     totalItems: totalCount,
+//                     totalPages: Math.ceil(totalCount / limit),
+//                     currentPage: Number(page)
+//                 }
+//             };
+//             res.status(200).send(response);
+//         } else {
+//             // Error response if users not found
+//             const response = {
+//                 statusCode: 404,
+//                 message: "No users found"
+//             };
+//             res.status(404).send(response);
+//         }
+//     } catch (error) {
+//         // Server error response if any error occurs
+//         console.error("Error fetching users:", error);
+//         const response = {
+//             statusCode: 500,
+//             message: "Internal server error"
+//         };
+//         res.status(500).send(response);
+//     }
+// }
+
+
 exports.getuser = async function (req, res) {
     try {
-        const allUsers = await users.find();
+        // Extract query parameters
+        const { page = 1, limit = 10, role, search } = req.query;
+
+        // Initialize filter object
+        let filter = {};
+        if (role) {
+            filter.role = role; // Filter by role if provided
+        }
+        
+        // Modify filter to include search functionality
+        if (search) {
+            // Using regex for case-insensitive search across name, email, and phone fields
+            filter.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+                { phone: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        // Find users with pagination and filtering
+        const allUsers = await users.find(filter)
+                                    .skip((page - 1) * limit)
+                                    .limit(Number(limit));
+
+        // Get total count for pagination info
+        const totalCount = await users.countDocuments(filter);
+
         if (allUsers && allUsers.length > 0) {
-            // Sends response if users is found
+            // Sends response if users are found
             const response = {
                 statusCode: 200,
                 message: "Success",
-                data: allUsers
+                data: allUsers,
+                pagination: {
+                    totalItems: totalCount,
+                    totalPages: Math.ceil(totalCount / limit),
+                    currentPage: Number(page)
+                }
             };
             res.status(200).send(response);
         } else {
@@ -224,7 +339,6 @@ exports.getuser = async function (req, res) {
         res.status(500).send(response);
     }
 }
-
 
 exports.viewuser = async function (req, res) {
     try {
@@ -310,7 +424,7 @@ exports.updateUser = async function (req, res) {
         existingUser.phonenumber = req.body.phonenumber || existingUser.phonenumber;
         existingUser.Address = req.body.Address || existingUser.Address;
         existingUser.pincode = req.body.pincode || existingUser.pincode;
-
+        existingUser.role    = req.body.role || existingUser.role;
         // If you have additional fields, update them in a similar manner
 
         // Save the updated user, triggering validation

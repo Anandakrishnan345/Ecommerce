@@ -296,8 +296,11 @@ console.log('respose',response)
   
       console.log('Cart items deleted successfully.');
     } catch (error) {
-      console.error('Error placing order:', error.message);
-      toast.error('Failed to place order. Please try again.');
+
+      console.error('Error placing order:', error.response);
+      console.error('Err:', error.response.data.data);
+      // toast.error('Failed to place order. Please try again.');
+      toast.error(error.response.data.data.error);
     }
   };
 

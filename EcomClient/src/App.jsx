@@ -25,6 +25,12 @@ import SearchResults from './Components/products/Searchresult';
 import ForgotPassword from './Components/Forgotpassword';
 import ResetPassword from './Components/Resetpassword';
 import UserProfile from './Components/Profile';
+import OrdersBySellerId from './Components/Orders/Seller/Getorderbyseller';
+import UpdateOrderStatus from './Components/Orders/Seller/Statusorder';
+import UserTable from './Components/Admincontrols/Getuser';
+
+
+
 // import Newnavbar from './Components/Newnavbar';
 
 
@@ -63,7 +69,10 @@ function App() {
           <Route path="/order" element={<GetOrder/>} />
           <Route path="/seller/:id" element={<Seller />} />
           <Route path='/updateproduct/asSeller/:productId' element={<UpdateProduct/>}/>
-         
+          <Route path="/getorders/asSeller" element={<OrdersBySellerId />} />
+          <Route path="/status/:orderId" element={<UpdateOrderStatus/>} />
+          <Route path="/getuser" element={<UserTable/>} />
+
           {/* <Route path="*" element={<NotFound />} />  */}
         </Routes>
       </div>

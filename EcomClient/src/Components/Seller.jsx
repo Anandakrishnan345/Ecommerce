@@ -100,6 +100,8 @@ import axios from 'axios';
 import BASE_URL from '../Api-handler/Baseurl';
 import Logout from './Logout';
 import { MenuIcon, XIcon } from '@heroicons/react/outline';
+import Newnavbar from './Newnavbar';
+import GetproductasBuyer from './products/GetproductasBuyer';
 
 const Seller = () => {
   const { id } = useParams(); // Get the id from the URL
@@ -178,76 +180,19 @@ const Seller = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen ">
-      <nav className="bg-gray-800 text-white p-4 flex justify-between items-center">
-         <div>
-           <Logout />
-         </div>
-         <div className="text-xl font-bold ">MERN STORE</div>
-         <div>
-          {/* Conditional Rendering of Menu or Close Icon */}
-           <button className="text-white focus:outline-none" onClick={toggleActions}>
-             {showActions ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
-           </button>
-         </div>
-       </nav>
-      
-       {/* Slide-in Navbar for Actions */}
-       <div className={`fixed top-0 right-0 h-screen bg-gray-800 text-white p-4 transform transition-transform duration-300 ${showActions ? 'translate-x-0' : 'translate-x-full'}`}>
-         <div className="flex flex-col">
-         <button className="text-white focus:outline-none px-auto flex justify-end" onClick={toggleActions}>
-             {showActions ? <XIcon className="h-6 w-6 " /> : <MenuIcon className="h-6 w-6" />}
-           </button>
-         <div className="flex flex-col mb-4 p-5">Welcome: {user.name} 
-         <div className="">Account type: {user.role}</div>
-          </div>
-         
-         <Link to={`/Update/${user._id}`} className="button mb-4 p-5">Update User</Link>
-         <Link to={'changepassword'} className="button mb-4 p-5">Change Password</Link>        
-         <Link to={'/myorders'} className="button mb-4 p-5">Orders</Link>
-       <Link to={`/addproduct/${user._id}`} className="button mb-4 p-5">Add products</Link>
-         <Link to={`/viewproducts/bySeller/${user._id}`} className="button mb-4 p-5">List products</Link>
-       </div>
+    <div className="flex flex-col min-h-screen  bg-indigo-200">
+    {/* Fixed Background */}
+    <div className=" " />
+ 
+
+<div className="flex flex-col min-h-screen bg-indigo-200">
+      <Newnavbar  />
+      <div className="p-4">
+        <GetproductasBuyer  />
       </div>
-      <div className="p-8 space-y-8">
-      {Object.entries(productsByCategory).map(([category, products]) => (
-        <div key={category}>
-          <h2 className="text-xl font-semibold mb-4">{category}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map((product) => (
-              <div key={product._id} className="bg-white shadow-md rounded overflow-hidden">
-                <div className="h-48  flex items-center justify-center">
-                  <img
-                    src={`${BASE_URL}/${product.image}`}
-                    alt={product.productName}
-                    className="h-full w-auto max-w-full"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">{product.productName}</h3>
-                  <p className="text-sm text-gray-600 mb-4"><strong>Price:</strong> ${product.price}</p>
-                  {/* <div className="flex justify-between">
-                    <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none"
-                      onClick={() => handleUpdateProduct(product._id)}
-                    >
-                      Update
-                    </button>
-                    <button
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded focus:outline-none"
-                      onClick={() => handleDeleteProduct(product._id)}
-                    >
-                      Delete
-                    </button>
-                  </div> */}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
     </div>
-    </div>
+
+  </div>
   );
 };
 

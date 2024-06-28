@@ -4,6 +4,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import BASE_URL from '../../Api-handler/Baseurl';
 import Newnavbar from '../Newnavbar';
+import { Link } from 'react-router-dom';
+
 
 function GetOrder() {
   const [orderDetails, setOrderDetails] = useState([]);
@@ -23,9 +25,11 @@ function GetOrder() {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response)
+      console.log('response',response)
       const responseData = response.data;
       const orders = responseData.orders; // Extract the orders array from the response
+      const sortedOrderDetails = orders.sort((a, b) => new Date(b.DeliveredAt) - new Date(a.DeliveredAt));
+      setOrderDetails(sortedOrderDetails);
       
       if (!Array.isArray(orders) || orders.length === 0) {
         toast.info('No orders found.');
@@ -57,29 +61,41 @@ function GetOrder() {
         <h1>Orders</h1>
       </header>
       <div className="container mx-auto p-4 bg-white shadow-md mt-4">
-        {orderDetails.length === 0 ? (
-          <p>No orders found.</p>
-        ) : (
-          orderDetails.map((order, index) => (
-            <div key={index} className="mb-4 p-4 border-b border-gray-300">
-              <div className="flex items-center mb-4">
-                <img
-                  src={`${BASE_URL}/${order.product.image}`}
-                  alt={order.product.productName}
-                  className="w-24 h-24 mr-4"
-                />
-                <div className="flex-grow">
-                  <p>{order.product.productName}</p>
-                  <p className="text-green-600">₹{order.product.price}</p>
-                  {/* <p>Delivered on {new Date(order.deliveryDate).toLocaleDateString()}</p> */}
-                  <p>{order.deliveryStatus}</p>
-                  <p className="text-gray-600">Your item has been delivered</p>
-                  <button className="text-blue-600">Rate & Review Product</button>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
+      {orderDetails.length === 0 ? (
+  <p>No orders found.</p>
+) : (
+  orderDetails.map((order, index) => (
+    <div key={index} className="mb-4 p-4 border-b border-gray-300">
+      <div className="flex items-center mb-4">
+        <div className=''>
+          <Link to={`/viewproductdetailsbuyer/${order.product._id}`}>
+            <img
+              src={`${BASE_URL}/${order.product.image}`}
+              alt={order.product.productName}
+              className="w-24 h-24 mr-4"
+            />
+          </Link>
+        </div>
+        <div className="flex-grow mx-4">
+          <p>{order.product.productName}</p>
+          <p className="text-green-600">₹{order.product.price}</p>
+          {order.deliveryStatus === "Item Delivered" ? (
+            <>
+              <p>{order.deliveryStatus} on {new Date(order.DeliveredAt).toLocaleDateString()}</p>
+              <button className="text-blue-600">Rate & Review</button>
+            </>
+          ) : (
+            <>
+              <p>{order.deliveryStatus}</p>
+              <p className="text-gray-600">Your order is being processed</p>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  ))
+)}
+
       </div>
     </div>
   );

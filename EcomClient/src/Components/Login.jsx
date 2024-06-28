@@ -310,7 +310,12 @@ function Login() {
             />
             <span className="text-red-500 text-sm">{errors.password}</span>
           </div>
-          <div className="mb-6">
+          <div>
+          <p>
+              Don't remember? <Link to="/forgotpassword" className="text-indigo-600">Forgot Password</Link>
+            </p>
+          </div>
+          <div className="mb-2 mt-2">
             <button
               type="submit"
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -323,9 +328,7 @@ function Login() {
             <p className="mt-4">
               Don't have an account? <Link to="/signup" className="text-indigo-600 font-medium">Sign Up</Link>
             </p>
-            <p>
-              Don't remember? <Link to="/forgotpassword" className="text-indigo-600">Forgot Password</Link>
-            </p>
+           
            
           </div>
         </form>

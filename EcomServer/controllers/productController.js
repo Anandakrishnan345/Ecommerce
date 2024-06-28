@@ -13,15 +13,68 @@ const { deleteImage } = require('../Utils/fileUtils')
 
 
 // Controller function to handle product creation
+// exports.addProduct = async (req, res) => {
+//   const { productName, price, category, sellerName, contactEmail } = req.body;
+//   const { path: imagePath } = req.file; // Ensure req.file exists and get path
+//   const addedBy = req.user.id;
+
+//   try {
+//     // Validate required fields
+//     if (!productName || !price || !category || !sellerName || !contactEmail || !imagePath) {
+//       return res.status(400).json(error_function({ statusCode: 400, message: 'All fields are required' }));
+//     }
+
+//     // Create new product instance
+//     const newProduct = new Products({
+//       productName,
+//       price,
+//       category,
+//       sellerName,
+//       contactEmail,
+//       image: imagePath,
+//       addedBy: addedBy
+//     });
+
+//     // Save product to database
+//     const savedProduct = await newProduct.save();
+
+//     console.log('Product added successfully:', savedProduct);
+
+//     // Respond with success message using success_function
+//     const response = success_function({
+//       statusCode: 201,
+//       message: 'Product added successfully',
+//       data: { product: savedProduct }
+//     });
+//     res.status(response.statusCode).json(response);
+//   } catch (error) {
+//     console.error('Error adding product:', error.message);
+//     // Respond with error message using error_function
+//     const response = error_function({
+//       statusCode: 500,
+//       message: 'Internal server error',
+//       data: { error: error.message }
+//     });
+//     res.status(response.statusCode).json(response);
+//   }
+// };
+
+
 exports.addProduct = async (req, res) => {
-  const { productName, price, category, sellerName, contactEmail } = req.body;
+  const { productName, price, category, sellerName, contactEmail, stock } = req.body;
   const { path: imagePath } = req.file; // Ensure req.file exists and get path
   const addedBy = req.user.id;
 
   try {
     // Validate required fields
-    if (!productName || !price || !category || !sellerName || !contactEmail || !imagePath) {
+    if (!productName || !price || !category || !sellerName || !contactEmail || !imagePath || stock === undefined) {
       return res.status(400).json(error_function({ statusCode: 400, message: 'All fields are required' }));
+    }
+
+    // Validate stock to ensure it's a non-negative integer
+    const parsedStock = parseInt(stock, 10);
+    if (isNaN(parsedStock) || parsedStock < 0) {
+      return res.status(400).json(error_function({ statusCode: 400, message: 'Stock must be a non-negative integer' }));
     }
 
     // Create new product instance
@@ -32,10 +85,11 @@ exports.addProduct = async (req, res) => {
       sellerName,
       contactEmail,
       image: imagePath,
+      stock: parsedStock, // Include stock in the new product
       addedBy: addedBy
     });
 
-    // Save product to database
+    // Save product to the database
     const savedProduct = await newProduct.save();
 
     console.log('Product added successfully:', savedProduct);
@@ -301,14 +355,96 @@ exports.viewProductSeller = async (req, res) => {
 //   }
 // };
 
+// exports.updateProduct = async (req, res) => {
+//   const { productId } = req.params; // Extract the product ID from URL params
+//   const { productName, price, category, contactEmail } = req.body;
+//   const updatedBy = req.user.id; // Authenticated user ID (seller)
+
+//   try {
+//     // Validate required fields (if needed)
+//     // if (!productName || !price || !category || !contactEmail) {
+//     //   return res.status(400).json(error_function({ statusCode: 400, message: 'All fields are required' }));
+//     // }
+
+//     // Check if the product ID is valid
+//     if (!mongoose.Types.ObjectId.isValid(productId)) {
+//       return res.status(400).json(error_function({ statusCode: 400, message: 'Invalid product ID' }));
+//     }
+
+//     // Find the product by ID
+//     const product = await Products.findById(productId);
+
+//     // Check if the product exists
+//     if (!product) {
+//       return res.status(404).json(error_function({ statusCode: 404, message: 'Product not found' }));
+//     }
+
+//     // Check if the authenticated user is the one who added the product
+//     if (product.addedBy.toString() !== updatedBy) {
+//       return res.status(403).json(error_function({ statusCode: 403, message: 'Unauthorized: You are not allowed to update this product' }));
+//     }
+
+//     // Store the original product data before update
+//     const originalProductData = {
+//       productName: product.productName,
+//       price: product.price,
+//       category: product.category,
+//       contactEmail: product.contactEmail,
+//       image: product.image // Assuming you want to include the image path
+//     };
+
+//     // Update product fields, retaining original data if updated field is empty
+//     product.productName = productName || originalProductData.productName;
+//     product.price = price || originalProductData.price;
+//     product.category = category || originalProductData.category;
+//     product.contactEmail = contactEmail || originalProductData.contactEmail;
+
+//     // Check if a file was uploaded (optional)
+//     if (req.file) {
+//       // Delete existing image if present
+//       if (product.image) {
+//         // Implement a function to delete the old image using fs.unlinkSync
+//         deleteImage(product.image);
+//       }
+//       // Update product image with the new file path
+//       product.image = req.file.path;
+//     }
+
+//     // Save the updated product
+//     const updatedProduct = await product.save();
+
+//     // Respond with success message and updated product data
+//     const response = success_function({
+//       statusCode: 200,
+//       message: 'Product updated successfully',
+//       data: {
+//         updatedProduct: updatedProduct,
+//         originalProductData: originalProductData // Include original product data in the response
+//       }
+//     });
+
+//     res.status(response.statusCode).json(response);
+//   } catch (error) {
+//     console.error('Error updating product:', error.message);
+//     // Respond with error message using error_function
+//     const response = error_function({
+//       statusCode: 500,
+//       message: 'Internal server error',
+//       data: { error: error.message }
+//     });
+//     res.status(response.statusCode).json(response);
+//   }
+// };
+
+
 exports.updateProduct = async (req, res) => {
   const { productId } = req.params; // Extract the product ID from URL params
-  const { productName, price, category, contactEmail } = req.body;
+  const { productName, price, category, contactEmail, stock } = req.body; // Include stock from request body
   const updatedBy = req.user.id; // Authenticated user ID (seller)
 
   try {
     // Validate required fields (if needed)
-    // if (!productName || !price || !category || !contactEmail) {
+    // if (!productName || !price || !category || !contactEmail || stock === undefined) {
     //   return res.status(400).json(error_function({ statusCode: 400, message: 'All fields are required' }));
     // }
 
@@ -336,6 +472,7 @@ exports.updateProduct = async (req, res) => {
       price: product.price,
       category: product.category,
       contactEmail: product.contactEmail,
+      stock: product.stock, // Include the stock field
       image: product.image // Assuming you want to include the image path
     };
 
@@ -344,13 +481,13 @@ exports.updateProduct = async (req, res) => {
     product.price = price || originalProductData.price;
     product.category = category || originalProductData.category;
     product.contactEmail = contactEmail || originalProductData.contactEmail;
+    product.stock = stock !== undefined ? stock : originalProductData.stock; // Update stock, ensure it's a valid number
 
     // Check if a file was uploaded (optional)
     if (req.file) {
       // Delete existing image if present
       if (product.image) {
-        // Implement a function to delete the old image using fs.unlinkSync
-        deleteImage(product.image);
+        deleteImage(product.image); // Implement a function to delete the old image
       }
       // Update product image with the new file path
       product.image = req.file.path;

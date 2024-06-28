@@ -15,6 +15,7 @@ const products=new mongoose.Schema({
     paymentMethod:"string",
     sellerName:"string",
     contactEmail:"string",
+    stock: { type: Number, default: 1 },
     addedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users' // Reference to the User model
